@@ -12,8 +12,6 @@ using PenielPlaceMinistriesCSharp.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var contentRoot = builder.Environment.ContentRootPath;
-var storageDir = Path.Combine(contentRoot, "storage");
-Directory.CreateDirectory(storageDir);
 
 var cookieSecurePolicy = builder.Environment.IsDevelopment()
     ? CookieSecurePolicy.SameAsRequest
@@ -41,20 +39,20 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.RequestCultureProviders.Clear();
 });
 
-// Database 
-var connectionString =
-    builder.Configuration.GetConnectionString("Default")
-    ?? $"Data Source={Path.Combine(storageDir, "peniel.sqlite")}";
+// Database
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Configuration value 'ConnectionStrings:Default' is missing. Set it using user secrets or another secure configuration provider.");
+}
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
-
-var keyPath = builder.Configuration["DataProtection:KeyPath"]
-    ?? Path.Combine(storageDir, "keys");
-Directory.CreateDirectory(keyPath);
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
 
 builder.Services.AddDataProtection()
     .SetApplicationName(builder.Configuration["DataProtection:ApplicationName"] ?? "PenielPlaceDonationSystem")
-    .PersistKeysToFileSystem(new DirectoryInfo(keyPath));
+    // Persist keys to the application's DbContext so they are stored in the SQL Server database
+    .PersistKeysToDbContext<AppDbContext>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
