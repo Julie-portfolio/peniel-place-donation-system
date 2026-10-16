@@ -1,0 +1,39 @@
+@model AuthenticatorSetupViewModel
+@{
+    ViewData["Title"] = "Set up your authenticator";
+    Layout = "_AuthLayout";
+    var spacedKey = string.Join(" ", Enumerable.Range(0, (Model.SharedKey.Length + 3) / 4)
+        .Select(i => Model.SharedKey.Substring(i * 4, Math.Min(4, Model.SharedKey.Length - i * 4))));
+}
+<h1>Set up your authenticator</h1>
+<p class="lead">Every account needs a second step to sign in. Install an authenticator app (such as Google Authenticator, Microsoft Authenticator or Authy), add Peniel Place, then type the 6-digit code it shows.</p>
+<partial name="_Alerts" />
+
+<div class="stack">
+    <div data-qr-uri="@Model.AuthenticatorUri" hidden aria-label="QR code for your authenticator app" style="max-width:14rem;margin:0 auto"></div>
+
+    <div class="field">
+        <label>Or type this key into your app</label>
+        <code style="word-break:break-all;display:block;padding:.6rem">@spacedKey</code>
+        <p class="muted small">Keep this key private. It is only shown while you set up.</p>
+    </div>
+
+    <form asp-action="SetupAuthenticator" method="post" class="stack">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+        <div class="field">
+            <label asp-for="Code">Code from the app</label>
+            <input asp-for="Code" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" autofocus />
+            <span asp-validation-for="Code" class="field-error"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block" data-loading-text="Checking...">Confirm and sign in</button>
+        <a asp-action="Login" class="btn btn-quiet btn-block">Back to sign in</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/qrcode/qrcode.js"></script>
+    <script src="~/js/qr-setup.js"></script>
+}

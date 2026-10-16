@@ -1,0 +1,114 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var maxCategory = Model.ByCategory.Count > 0 ? Model.ByCategory.Max(c => c.Total) : 0m;
+    var maxMonth = Model.ByMonth.Count > 0 ? Model.ByMonth.Max(m => m.Total) : 0m;
+    var thisMonthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    var lastMonthStart = thisMonthStart.AddMonths(-1);
+    var yearStart = new DateTime(DateTime.Today.Year, 1, 1);
+}
+<header class="page-head">
+    <h1>Dashboard</h1>
+    <p class="lead">Donations received from @Fmt.Date(Model.From) to @Fmt.Date(Model.To).</p>
+</header>
+
+<partial name="_Alerts" />
+
+<form method="get" asp-action="Index" class="filters">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <div class="field"><label asp-for="From">From</label><input asp-for="From" type="date" /></div>
+    <div class="field"><label asp-for="To">To</label><input asp-for="To" type="date" /><span asp-validation-for="To" class="field-error"></span></div>
+    <button type="submit" class="btn btn-primary">Show</button>
+    <div class="presets" aria-label="Quick periods">
+        <a asp-action="Index" asp-route-from="@thisMonthStart.ToString("yyyy-MM-dd")" asp-route-to="@DateTime.Today.ToString("yyyy-MM-dd")">This month</a>
+        <a asp-action="Index" asp-route-from="@lastMonthStart.ToString("yyyy-MM-dd")" asp-route-to="@thisMonthStart.AddDays(-1).ToString("yyyy-MM-dd")">Last month</a>
+        <a asp-action="Index" asp-route-from="@yearStart.ToString("yyyy-MM-dd")" asp-route-to="@DateTime.Today.ToString("yyyy-MM-dd")">This year</a>
+    </div>
+</form>
+
+<section class="summary" aria-label="Summary">
+    <div class="summary-main">
+        <span class="summary-label">Money received</span>
+        <span class="summary-total">@Fmt.Money(Model.TotalMonetary)</span>
+    </div>
+    <dl class="summary-side">
+        <div><dt>Gifts recorded</dt><dd>@Model.DonationCount</dd></div>
+        <div><dt>In-kind gifts</dt><dd>@Model.InKindCount</dd></div>
+        <div><dt>Donors who gave</dt><dd>@Model.DonorCount</dd></div>
+    </dl>
+</section>
+
+@if (Model.DonationCount == 0)
+{
+    <div class="empty">
+        <h2>No donations in this period</h2>
+        <p>Try a wider date range, or record a donation to get started.</p>
+        <a asp-controller="Donation" asp-action="Create" class="btn btn-primary">Record a donation</a>
+    </div>
+}
+else
+{
+    <div class="two-col">
+        <section class="panel">
+            <h2>By type of gift</h2>
+            <ul class="bars">
+                @foreach (var c in Model.ByCategory)
+                {
+                    <li>
+                        <span class="bar-label">@c.CategoryName <small>(@c.Count)</small></span>
+                        <span class="bar-track"><span class="bar-fill" style="width:@(Fmt.Pct(c.Total, maxCategory))%"></span></span>
+                        <span class="bar-value">@Fmt.Money(c.Total)</span>
+                    </li>
+                }
+            </ul>
+        </section>
+
+        <section class="panel">
+            <h2>By month</h2>
+            <ul class="columns" aria-label="Money received per month">
+                @foreach (var m in Model.ByMonth)
+                {
+                    <li title="@Fmt.Money(m.Total)">
+                        <span class="col-fill" style="height:@(Fmt.Pct(m.Total, maxMonth))%"></span>
+                        <span class="col-label">@Fmt.Month(m.Month)</span>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+
+    <section class="panel">
+        <h2>Top donors</h2>
+        <table class="table">
+            <thead><tr><th>Donor</th><th class="num">Gifts</th><th class="num">Total given</th></tr></thead>
+            <tbody>
+            @foreach (var d in Model.TopDonors)
+            {
+                <tr>
+                    <td data-label="Donor"><a asp-controller="Donor" asp-action="Details" asp-route-id="@d.DonorId">@d.DonorName</a></td>
+                    <td data-label="Gifts" class="num">@d.Count</td>
+                    <td data-label="Total given" class="num">@Fmt.Money(d.Total)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Latest donations</h2>
+        <table class="table">
+            <thead><tr><th>Date</th><th>Donor</th><th>Type</th><th class="num">Gift</th></tr></thead>
+            <tbody>
+            @foreach (var d in Model.Recent)
+            {
+                <tr>
+                    <td data-label="Date">@Fmt.Date(d.Date)</td>
+                    <td data-label="Donor">@d.DonorName</td>
+                    <td data-label="Type">@d.CategoryName</td>
+                    <td data-label="Gift" class="num">@(d.IsInKind ? d.InKindDescription : Fmt.Money(d.Amount))</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}

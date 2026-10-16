@@ -1,0 +1,38 @@
+@model VoidDonationViewModel
+@{
+    ViewData["Title"] = "Void donation";
+    var d = Model.Donation!;
+}
+<header class="page-head">
+    <h1>Void this donation?</h1>
+    <p class="lead">The record and its receipt are kept for the audit trail, but the gift stops counting toward every total, dashboard figure and report. This cannot be undone. If the gift was recorded wrongly, void it and then record the correct one.</p>
+</header>
+
+<partial name="_Alerts" />
+
+<dl class="receipt-grid" aria-label="Donation to void">
+    <div><dt>Receipt</dt><dd>@(d.ReceiptNumber ?? "Not issued")</dd></div>
+    <div><dt>Date of gift</dt><dd>@Fmt.Date(d.Date)</dd></div>
+    <div><dt>Donor</dt><dd>@d.DonorName</dd></div>
+    <div><dt>Type of gift</dt><dd>@d.CategoryName</dd></div>
+    <div><dt>Gift</dt><dd>@(d.IsInKind ? d.InKindDescription : Fmt.Money(d.Amount))</dd></div>
+</dl>
+
+<form asp-action="Void" method="post" class="stack form-wide" autocomplete="off">
+    <input type="hidden" asp-for="DonationId" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="field">
+        <label asp-for="Reason">Reason for voiding *</label>
+        <textarea asp-for="Reason" rows="3" maxlength="250" autofocus></textarea>
+        <span asp-validation-for="Reason" class="field-error"></span>
+        <p class="muted small">For example: "Captured the wrong amount" or "Duplicate of receipt PPM-20261015-000012". It is stored encrypted and shown on the receipt.</p>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-danger btn-lg" data-loading-text="Voiding...">Void donation</button>
+        <a asp-controller="Receipt" asp-action="Details" asp-route-id="@Model.DonationId" class="btn btn-quiet btn-lg">Keep it</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

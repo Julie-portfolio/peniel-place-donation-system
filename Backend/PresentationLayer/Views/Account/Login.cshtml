@@ -1,0 +1,35 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign in";
+    Layout = "_AuthLayout";
+}
+<h1>Sign in</h1>
+<p class="lead">Use the email and password a church leader gave you.</p>
+<partial name="_Alerts" />
+
+<form asp-action="Login" method="post" class="stack">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="field">
+        <label asp-for="Email">Email address</label>
+        <input asp-for="Email" type="email" autocomplete="username" autofocus inputmode="email" maxlength="254" />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+
+    <div class="field">
+        <label asp-for="Password">Password</label>
+        <div class="with-action">
+            <input asp-for="Password" autocomplete="current-password" maxlength="128" />
+            <button type="button" class="btn btn-quiet btn-sm" data-toggle-password="#Password" aria-pressed="false">Show</button>
+        </div>
+        <span asp-validation-for="Password" class="field-error"></span>
+    </div>
+
+    <label class="check"><input asp-for="RememberMe" /> Keep me signed in on this device</label>
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block" data-loading-text="Signing in...">Sign in</button>
+    <p class="muted small">You will be asked for a 6-digit code on the next step.</p>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

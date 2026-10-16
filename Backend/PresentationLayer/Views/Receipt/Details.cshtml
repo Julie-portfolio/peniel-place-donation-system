@@ -1,0 +1,56 @@
+@model ReceiptViewModel
+@{
+    ViewData["Title"] = "Receipt " + Model.ReceiptNumber;
+}
+<div class="no-print">
+    <partial name="_Alerts" />
+    <header class="page-head row">
+        <div>
+            <h1>Receipt</h1>
+            <p class="lead">Give this proof of donation to the donor, or print it for the records.</p>
+        </div>
+        <div class="actions">
+            <button type="button" class="btn btn-primary" data-print>Print receipt</button>
+            <a asp-controller="Donation" asp-action="Create" class="btn btn-quiet">Record another</a>
+            @if (!Model.IsVoided && User.IsInRole(Roles.Leadership))
+            {
+                <a asp-controller="Donation" asp-action="Void" asp-route-id="@Model.DonationId" class="btn btn-quiet">Void donation</a>
+            }
+        </div>
+    </header>
+</div>
+
+<article class="receipt @(Model.IsVoided ? "is-void" : null)" aria-label="@(Model.IsVoided ? "VOIDED proof of donation" : "Proof of donation")">
+    @if (Model.IsVoided)
+    {
+        <div class="void-stamp" role="alert">
+            <strong>VOID - this receipt is no longer valid</strong>
+            <span>Voided on @Fmt.Date(Model.VoidedDate) by @Model.VoidedBy.@(string.IsNullOrWhiteSpace(Model.VoidReason) ? "" : " Reason: " + Model.VoidReason)</span>
+        </div>
+    }
+    <header>
+        <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Peniel Place Ministries</div>
+        <div class="receipt-no">Receipt no. <strong>@Model.ReceiptNumber</strong></div>
+    </header>
+
+    <h2>Proof of donation</h2>
+    <dl class="receipt-grid">
+        <div><dt>Received from</dt><dd>@Model.DonorName</dd></div>
+        <div><dt>Date of gift</dt><dd>@Fmt.Date(Model.DonationDate)</dd></div>
+        <div><dt>Type of gift</dt><dd>@Model.CategoryName</dd></div>
+        @if (Model.IsInKind)
+        {
+            <div><dt>Items donated</dt><dd>@Model.InKindDescription</dd></div>
+        }
+        else
+        {
+            <div><dt>Payment method</dt><dd>@(string.IsNullOrWhiteSpace(Model.PaymentMethod) ? "Not recorded" : Model.PaymentMethod)</dd></div>
+            <div class="receipt-total"><dt>Amount received</dt><dd>@Fmt.Money(Model.Amount)</dd></div>
+        }
+    </dl>
+
+    <footer>
+        <p>Issued on @Fmt.Date(Model.IssuedDate) by @Model.IssuedBy.</p>
+        <p class="muted small">This receipt confirms a donation made to Peniel Place Ministries and is for the donor's personal records.</p>
+    </footer>
+</article>
