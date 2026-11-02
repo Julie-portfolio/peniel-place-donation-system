@@ -1,0 +1,15 @@
+{
+  "name": "Peniel Place Ministries Donations",
+  "short_name": "Peniel Place",
+  "description": "Record and track donations for Peniel Place Ministries.",
+  "start_url": "/Donation/Create",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f5f8",
+  "theme_color": "#1e4d7b",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

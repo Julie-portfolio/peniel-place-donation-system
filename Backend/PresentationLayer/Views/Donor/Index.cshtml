@@ -1,0 +1,56 @@
+@model DonorLookupViewModel
+@{
+    ViewData["Title"] = "Donors";
+}
+<header class="page-head row">
+    <div>
+        <h1>Donors</h1>
+        <p class="lead">Find a donor to see their giving history and receipts.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Add donor</a>
+</header>
+
+<partial name="_Alerts" />
+
+<form method="get" asp-action="Index" class="search-bar" role="search">
+    <label for="Query" class="sr-only">Search donors</label>
+    <input asp-for="Query" type="search" placeholder="Name, phone or email" maxlength="100" autocomplete="off" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (Model.Results.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr><th>Name</th><th>Contact</th><th class="num">Gifts</th><th class="num">Total given</th><th>Last gift</th><th><span class="sr-only">Open</span></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var d in Model.Results)
+        {
+            <tr>
+                <td data-label="Name"><strong>@d.FullName</strong></td>
+                <td data-label="Contact">@(string.IsNullOrWhiteSpace(d.Phone) ? d.Email : d.Phone)</td>
+                <td data-label="Gifts" class="num">@d.DonationCount</td>
+                <td data-label="Total given" class="num">@Fmt.Money(d.TotalGiven)</td>
+                <td data-label="Last gift">@Fmt.Date(d.LastDonationDate)</td>
+                <td class="row-action"><a asp-action="Details" asp-route-id="@d.DonorId" class="btn btn-quiet btn-sm">View</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else if (Model.HasSearched)
+{
+    <div class="empty">
+        <h2>No donors match "@Model.Query"</h2>
+        <p>Check the spelling, or try a phone number or email instead. If this is a new donor, add them first.</p>
+        <a asp-action="Create" class="btn btn-primary">Add donor</a>
+    </div>
+}
+else
+{
+    <div class="empty">
+        <h2>Search to see donors</h2>
+        <p>Type a name, phone number or email above and press Search.</p>
+    </div>
+}

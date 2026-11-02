@@ -1,0 +1,87 @@
+@model ReportViewModel
+@{
+    ViewData["Title"] = "Reports";
+    var groupLabel = Model.GroupBy switch { "donor" => "Donor", "month" => "Month", _ => "Type of gift" };
+}
+<header class="page-head no-print">
+    <h1>Reports</h1>
+    <p class="lead">Summaries for accountability to the congregation and for financial planning.</p>
+</header>
+
+<form method="get" asp-action="Index" class="filters no-print">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <div class="field"><label asp-for="From">From</label><input asp-for="From" type="date" /></div>
+    <div class="field"><label asp-for="To">To</label><input asp-for="To" type="date" /><span asp-validation-for="To" class="field-error"></span></div>
+    <div class="field">
+        <label asp-for="GroupBy">Group by</label>
+        <select asp-for="GroupBy">
+            <option value="category">Type of gift</option>
+            <option value="donor">Donor</option>
+            <option value="month">Month</option>
+        </select>
+        <span asp-validation-for="GroupBy" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="CategoryId">Type of gift</label>
+        <select asp-for="CategoryId">
+            <option value="">All types</option>
+            @foreach (var c in Model.Categories)
+            {
+                <option value="@c.Id" selected="@(Model.CategoryId == c.Id)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="field">
+        <label asp-for="DonorId">Donor</label>
+        <select asp-for="DonorId">
+            <option value="">All donors</option>
+            @foreach (var d in Model.Donors)
+            {
+                <option value="@d.Id" selected="@(Model.DonorId == d.Id)">@d.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create report</button>
+</form>
+
+<section class="report" aria-label="Donation report">
+    <h2 class="print-only">Peniel Place Ministries: donation report</h2>
+    <p class="muted">@Fmt.Date(Model.From) to @Fmt.Date(Model.To), grouped by @groupLabel.ToLower(). Created @Model.GeneratedAt.ToString("d MMM yyyy, HH:mm").</p>
+
+    @if (Model.Rows.Count == 0)
+    {
+        <div class="empty">
+            <h2>No donations in this period</h2>
+            <p>Choose a wider date range and create the report again.</p>
+        </div>
+    }
+    else
+    {
+        <table class="table">
+            <thead><tr><th>@groupLabel</th><th class="num">Gifts</th><th class="num">Money received</th><th class="num">Share</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model.Rows)
+            {
+                <tr>
+                    <td data-label="@groupLabel">@r.Label</td>
+                    <td data-label="Gifts" class="num">@r.Count</td>
+                    <td data-label="Money received" class="num">@Fmt.Money(r.Total)</td>
+                    <td data-label="Share" class="num">@Fmt.Pct(r.Total, Model.GrandTotal)%</td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+                <tr><th>Total</th><th class="num">@Model.GrandCount</th><th class="num">@Fmt.Money(Model.GrandTotal)</th><th></th></tr>
+            </tfoot>
+        </table>
+        <p class="muted small">In-kind gifts are counted but have no money value, so they add to "Gifts" only.</p>
+    }
+</section>
+
+@if (Model.Rows.Count > 0)
+{
+    <div class="actions no-print">
+        <button type="button" class="btn btn-primary" data-print>Print report</button>
+        <a asp-action="ExportCsv" asp-route-from="@Model.From.ToString("yyyy-MM-dd")" asp-route-to="@Model.To.ToString("yyyy-MM-dd")" asp-route-groupBy="@Model.GroupBy" asp-route-categoryId="@Model.CategoryId" asp-route-donorId="@Model.DonorId" class="btn btn-quiet">Download as spreadsheet (CSV)</a>
+    </div>
+}

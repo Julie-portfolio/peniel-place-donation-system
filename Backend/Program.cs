@@ -9,7 +9,11 @@ using PenielPlaceMinistriesCSharp.Models;
 using PenielPlaceMinistriesCSharp.Security;
 using PenielPlaceMinistriesCSharp.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "PresentationLayer/wwwroot"
+});
 
 var contentRoot = builder.Environment.ContentRootPath;
 
@@ -22,6 +26,12 @@ builder.Services.AddControllersWithViews(options =>
     var requireUser = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser().Build();
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AuthorizeFilter(requireUser));
+}).AddRazorOptions(options =>
+{
+    // Views live in PresentationLayer so the UI stays together in the requested structure.
+    options.ViewLocationFormats.Clear();
+    options.ViewLocationFormats.Add("/PresentationLayer/Views/{1}/{0}.cshtml");
+    options.ViewLocationFormats.Add("/PresentationLayer/Views/Shared/{0}.cshtml");
 });
 
 builder.Services.AddAntiforgery(options =>

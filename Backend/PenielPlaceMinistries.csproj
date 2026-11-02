@@ -5,8 +5,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PenielPlaceMinistriesCSharp</RootNamespace>
+    <WebRoot>PresentationLayer/wwwroot</WebRoot>
     <UserSecretsId>706f5641-95f4-4646-b00f-de628e305ce4</UserSecretsId>
   </PropertyGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="Controllers/**/*.cs" />
+    <Compile Remove="Data/**/*.cs" />
+    <Compile Remove="Security/**/*.cs" />
+    <Compile Remove="Services/**/*.cs" />
+    <Compile Remove="ViewModels/**/*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />

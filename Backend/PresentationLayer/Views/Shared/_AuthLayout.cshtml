@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1e4d7b" />
+    <title>@ViewData["Title"] - Peniel Place Ministries</title>
+    <link rel="manifest" href="~/manifest.webmanifest" />
+    <link rel="icon" href="~/icons/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="auth">
+<main class="auth-card">
+    <div class="brand brand-large"><span class="brand-mark" aria-hidden="true"></span>Peniel Place<small>Ministries donation system</small></div>
+    @RenderBody()
+</main>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

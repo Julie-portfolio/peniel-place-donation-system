@@ -1,0 +1,111 @@
+@model DonationCreateViewModel
+@{
+    ViewData["Title"] = "Record a donation";
+    var today = DateTime.Today.ToString("yyyy-MM-dd");
+    var methods = PaymentMethods.All;
+}
+<header class="page-head">
+    <h1>Record a donation</h1>
+    <p class="lead">Fill in the details below. Fields marked * are required.</p>
+</header>
+
+<partial name="_Alerts" />
+<div id="offline-banner" class="alert alert-warn" role="status" hidden>
+    <strong>No internet connection.</strong> You can still fill this in. It will be saved on this device and sent when you are back online.
+</div>
+<div id="pending-banner" class="alert alert-info" role="status" hidden></div>
+
+<form asp-action="Create" method="post" id="donation-form" class="stack form-wide" data-offline-capable>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="IsInKind" />
+
+    <fieldset class="group">
+        <legend>Type of gift *</legend>
+        <div class="chips" role="radiogroup" aria-label="Type of gift">
+            @foreach (var c in Model.Categories)
+            {
+                <label class="chip">
+                    <input type="radio" asp-for="CategoryId" value="@c.Id" data-inkind="@(c.IsInKind ? "true" : "false")" />
+                    <span>@c.Name</span>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="CategoryId" class="field-error"></span>
+    </fieldset>
+
+    <fieldset class="group" id="monetary-fields">
+        <legend>Amount</legend>
+        <div class="field">
+            <label asp-for="Amount">Amount received in Rand *</label>
+            <div class="money">
+                <span aria-hidden="true">R</span>
+                <input asp-for="Amount" inputmode="decimal" autocomplete="off" placeholder="0.00" maxlength="12" />
+            </div>
+            <span asp-validation-for="Amount" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label for="PaymentMethod">How was it paid?</label>
+            <select id="PaymentMethod" name="PaymentMethod">
+                <option value="">Not sure / not recorded</option>
+                @foreach (var m in methods)
+                {
+                    <option value="@m" selected="@(Model.PaymentMethod == m)">@m</option>
+                }
+            </select>
+        </div>
+    </fieldset>
+
+    <fieldset class="group" id="inkind-fields" hidden>
+        <legend>What was donated</legend>
+        <div class="field">
+            <label asp-for="InKindDescription">Describe the items *</label>
+            <input asp-for="InKindDescription" maxlength="200" placeholder="For example: 5 bags of maize meal" />
+            <span asp-validation-for="InKindDescription" class="field-error"></span>
+        </div>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Who gave it? *</legend>
+        <input type="hidden" asp-for="DonorId" />
+        <input type="hidden" asp-for="DonorName" />
+
+        <div id="donor-picker">
+            <div class="field">
+                <label for="donor-search">Search by name, phone or email</label>
+                <input id="donor-search" type="search" autocomplete="off" placeholder="Start typing a name"
+                       data-search-url="@Url.Action("Search", "Donor")" aria-controls="donor-results" />
+            </div>
+            <ul id="donor-results" class="results" role="listbox" hidden></ul>
+            <p id="donor-empty" class="muted small" hidden>No donor found. <a asp-controller="Donor" asp-action="Create" asp-route-returnUrl="@Url.Action("Create", "Donation")">Add a new donor</a></p>
+        </div>
+
+        <div id="donor-selected" class="selected" hidden>
+            <span>Donor: <strong id="donor-selected-name"></strong></span>
+            <button type="button" id="donor-clear" class="btn btn-quiet btn-sm">Change</button>
+        </div>
+
+        <label class="check"><input asp-for="IsAnonymous" /> Anonymous or donor not known</label>
+        <span asp-validation-for="DonorId" class="field-error"></span>
+    </fieldset>
+
+    <fieldset class="group">
+        <legend>Details</legend>
+        <div class="field">
+            <label asp-for="DonationDate">Date received *</label>
+            <input asp-for="DonationDate" type="date" max="@today" />
+            <span asp-validation-for="DonationDate" class="field-error"></span>
+        </div>
+        <div class="field">
+            <label asp-for="Notes">Notes (optional)</label>
+            <textarea asp-for="Notes" rows="2" maxlength="250" placeholder="For example: collected at the Saturday outreach"></textarea>
+            <span asp-validation-for="Notes" class="field-error"></span>
+        </div>
+    </fieldset>
+
+    <div class="actions sticky-actions">
+        <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Saving...">Save donation</button>
+        <a asp-controller="Donor" asp-action="Index" class="btn btn-quiet btn-lg">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

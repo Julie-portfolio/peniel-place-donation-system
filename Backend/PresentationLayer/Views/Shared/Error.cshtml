@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Something went wrong";
+    Layout = "_AuthLayout";
+}
+<h1>Something went wrong</h1>
+<p class="lead">The page could not be shown. Nothing you entered has been lost on the server. Try again, and if it keeps happening, tell a church leader.</p>
+@if (ViewData["RequestId"] is string requestId)
+{
+    <p class="muted small">Reference for support: <code>@requestId</code></p>
+}
+<a class="btn btn-primary" href="/">Go back to the start</a>

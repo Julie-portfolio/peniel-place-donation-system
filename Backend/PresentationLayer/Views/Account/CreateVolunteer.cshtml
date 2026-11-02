@@ -1,0 +1,38 @@
+@model CreateVolunteerViewModel
+@{
+    ViewData["Title"] = "Add a volunteer";
+}
+<header class="page-head">
+    <h1>Add a volunteer</h1>
+    <p class="lead">Create a sign-in for someone who captures donations. They will set up their authenticator app the first time they sign in.</p>
+</header>
+
+<partial name="_Alerts" />
+
+<form asp-action="CreateVolunteer" method="post" class="stack form-wide" autocomplete="off">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="field">
+        <label asp-for="DisplayName">Name *</label>
+        <input asp-for="DisplayName" maxlength="100" autofocus />
+        <span asp-validation-for="DisplayName" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Email">Email address *</label>
+        <input asp-for="Email" type="email" inputmode="email" maxlength="254" />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="TemporaryPassword">Temporary password *</label>
+        <input asp-for="TemporaryPassword" type="password" autocomplete="new-password" maxlength="128" />
+        <span asp-validation-for="TemporaryPassword" class="field-error"></span>
+        <p class="muted small">At least 12 characters with upper-case, lower-case, a number and a symbol. Hand it over in person or by a private message.</p>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Saving...">Create volunteer</button>
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-quiet btn-lg">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,41 @@
+@model DonorFormViewModel
+@{
+    ViewData["Title"] = "Add donor";
+}
+<header class="page-head">
+    <h1>Add a donor</h1>
+    <p class="lead">Only the name is required. Add contact details if the donor wants to receive receipts.</p>
+</header>
+
+<form asp-action="Create" method="post" class="stack form-wide">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="field">
+        <label asp-for="FullName">Full name *</label>
+        <input asp-for="FullName" autocomplete="off" maxlength="100" autofocus />
+        <span asp-validation-for="FullName" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Phone">Phone number</label>
+        <input asp-for="Phone" type="tel" inputmode="tel" maxlength="20" placeholder="082 123 4567" />
+        <span asp-validation-for="Phone" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Email">Email address</label>
+        <input asp-for="Email" type="email" inputmode="email" maxlength="254" />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+    <div class="field">
+        <label asp-for="Notes">Notes (optional)</label>
+        <textarea asp-for="Notes" rows="2" maxlength="250"></textarea>
+        <span asp-validation-for="Notes" class="field-error"></span>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary btn-lg" data-loading-text="Saving...">Save donor</button>
+        <a asp-action="Index" class="btn btn-quiet btn-lg">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
